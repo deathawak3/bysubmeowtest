@@ -23,7 +23,7 @@ html[data-theme="dark"] {
     --inner: rgba(255, 255, 255, .03);
 }
 
-/* Base */
+
 * {
     box-sizing: border-box;
 }
@@ -44,7 +44,7 @@ body {
     font: 16px/1.5 Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
-/* Layout */
+
 .wrap {
     max-width: clamp(1024px, 92vw, 1400px);
     margin: 28px auto 0;
@@ -73,7 +73,7 @@ body {
     gap: var(--gap);
 }
 
-/* Card */
+
 .card {
     position: relative;
     overflow: hidden;
@@ -89,7 +89,7 @@ body {
         font-weight: 800;
     }
 
-/* About */
+
 .about .header {
     display: flex;
     align-items: center;
@@ -116,7 +116,7 @@ body {
     min-height: 470px;
 }
 
-/* Socials */
+
 .socials {
     display: flex;
     flex-direction: column;
@@ -151,7 +151,7 @@ html[data-theme="dark"] .social {
     object-fit: contain;
 }
 
-/* Tiles */
+
 .grid-2 {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -178,7 +178,7 @@ html[data-theme="dark"] .social {
         image-rendering: pixelated;
     }
 
-/* Hover “breath” */
+
 @keyframes breath {
     0%,100% {
         transform: scale(1);
@@ -208,7 +208,7 @@ html[data-theme="dark"] .social {
     }
 }
 
-/* Special tiles */
+
 .tile--bottle img {
     width: 96%;
     height: 96%;
@@ -224,7 +224,7 @@ html[data-theme="dark"] .social {
     z-index: 2;
 }
 
-/* Copy overlay */
+
 .aim {
     display: flex;
     flex-direction: column;
@@ -258,7 +258,7 @@ html[data-theme="dark"] .social {
         border-radius: 10px;
     }
 
-/* Spotify embed */
+
 .card.spotify {
     width: 100%;
     max-width: none;
@@ -279,7 +279,7 @@ html[data-theme="dark"] .social {
     text-align: center;
 }
 
-/* Specs */
+
 .specs-card .specs {
     margin: 0;
     padding: 14px;
@@ -308,7 +308,7 @@ html[data-theme="dark"] .social {
     font-weight: 600;
 }
 
-/* Pigs */
+
 .wrap > .col:last-child {
     justify-items: center;
 }
@@ -333,7 +333,7 @@ html[data-theme="dark"] .social {
             border-radius: inherit;
         }
 
-/* Theme toggle */
+
 .theme-toggle {
     position: fixed;
     right: 18px;
@@ -353,7 +353,7 @@ html[data-theme="dark"] .social {
         transform: translateY(-1px);
     }
 
-/* Responsive */
+
 @media (max-width: 560px) {
     .specs-card .specs {
         grid-template-columns: 1fr;
@@ -398,13 +398,13 @@ html[data-theme="dark"] .social {
         }
 }
 
-/* ==== ФИКСИРОВАННАЯ СЕТКА (3 колонки) ==== */
+
 :root {
     --gap: 14px;
     --c1: 380px;
     --c23: 520px;
 }
-/* главный контейнер сетки */
+
 .wrap {
     width: calc(var(--c1) + var(--c23) * 2 + var(--gap) * 2);
     min-width: calc(var(--c1) + var(--c23) * 2 + var(--gap) * 2);
@@ -415,7 +415,7 @@ html[data-theme="dark"] .social {
     justify-content: center;
 }
 
-/* ======= Галерея фото (финальная версия) ======= */
+
 .gallery {
     grid-column: 1 / -1;
     margin-top: 0;
@@ -468,7 +468,7 @@ html[data-theme="dark"] .social {
     }
 }
 
-/* === Горизонтальная прокрутка на узких экранах === */
+
 html, body {
     overflow-x: auto !important;
 }
@@ -491,7 +491,7 @@ body {
     min-width: calc(var(--c1) + var(--c23) * 2 + var(--gap) * 2) !important;
 }
 
-/* ===== Lightbox ===== */
+
 .lightbox {
     position: fixed;
     inset: 0;
@@ -551,15 +551,15 @@ html[data-theme="dark"] .lightbox {
     touch-action: none;
 }
 
-/* === Рукописная надпись-оверлей в левом гуттере === */
+
 :root {
     --site-w: calc(var(--c1) + var(--c23) * 2 + var(--gap) * 2);
-    --handnote-top: 110px; /* подстрой по вертикали */
-    --handnote-offset: 230px; /* насколько левее от края макета */
+    --handnote-top: 110px; 
+    --handnote-offset: 230px; 
 }
 
 .handnote-ov {
-    position: fixed; /* не двигает вёрстку и не наезжает на карточки */
+    position: fixed; 
     left: calc(50% - var(--site-w)/2 - var(--handnote-offset));
     top: var(--handnote-top);
     display: flex;
@@ -588,7 +588,7 @@ html[data-theme="dark"] .lightbox {
     color: #fff;
     filter: drop-shadow(0 2px 6px rgba(0,0,0,.35));
 }
-/* На узких экранах (где гуттера нет) — убираем */
+
 @media (max-width: 1200px) {
     .handnote-ov {
         display: none;
