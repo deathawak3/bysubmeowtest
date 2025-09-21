@@ -594,38 +594,3 @@ html[data-theme="dark"] .lightbox {
         display: none;
     }
 }
-#handnote {
-    opacity: 1;
-    transition: opacity .3s ease; /* graceful when JS fallback runs */
-}
-
-/* Scroll-driven animation (CSS) */
-@keyframes handnote-fade {
-    from {
-        opacity: 1;
-    }
-
-    to {
-        opacity: 0;
-    }
-}
-
-/* Most engines (Chrome/Edge/Safari/WebKit) */
-@supports (animation-timeline: scroll(root)) {
-    #handnote {
-        animation: handnote-fade 1s linear both;
-        /* tie animation to vertical page scroll */
-        animation-timeline: scroll(root block);
-        /* fully faded by 300px scrolled; adjust as you like */
-        animation-range: 0 300px;
-    }
-}
-
-/* Alt syntax some engines prefer */
-@supports (animation-timeline: scroll()) {
-    #handnote {
-        animation: handnote-fade 1s linear both;
-        animation-timeline: scroll();
-        animation-range: 0 300px;
-    }
-}

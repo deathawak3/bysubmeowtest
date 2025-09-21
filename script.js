@@ -55,17 +55,3 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
 });
 
-// JS-фолбэк для fade (если CSS не поддерживается)
-document.addEventListener("DOMContentLoaded", () => {
-    const note = document.getElementById('handnote');
-    if (!note) return;
-
-    const MAX = 300; // после 300px скролла надпись исчезает
-    const update = () => {
-        const y = window.scrollY || 0;
-        note.style.opacity = Math.max(0, 1 - y / MAX);
-    };
-
-    window.addEventListener('scroll', () => requestAnimationFrame(update), { passive: true });
-    update();
-});
