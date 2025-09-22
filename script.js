@@ -63,35 +63,49 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.key === "Escape") close();
   });
 });
-// --- iOS / iPad zoom-out & auto-fit ---
+// --- iPad-only zoom-out & auto-fit ---
 const ua = navigator.userAgent;
-const isIOS = /iPad|iPhone|iPod/.test(ua) ||
-    // Detect iPadOS masquerading as "Mac" on Safari
+
+// Apple touch device (no deprecated props)
+const isAppleTouch =
+    /iPad|iPhone|iPod/.test(ua) ||
     (navigator.userAgentData
         ? navigator.userAgentData.platform === "macOS" && navigator.maxTouchPoints > 1
         : ua.includes("Mac") && navigator.maxTouchPoints > 1);
 
+// Tablet-ish size threshold (portrait width of iPad is 768 CSS px)
+const isTabletSized = Math.min(window.screen.width, window.screen.height) >= 768;
 
-if (isIOS) {
+// Final: treat as iPad/tablet only (not iPhone)
+const isIPad = isAppleTouch && isTabletSized;
+
+if (isIPad) {
     const vp = document.querySelector('meta[name="viewport"]');
 
     const updateViewportScale = () => {
         const wrap = document.querySelector(".wrap");
         if (!wrap || !vp) return;
 
-        // Total layout width; your CSS makes the site a fixed wide grid
+        // Real layout width vs device viewport width
         const layoutWidth = wrap.scrollWidth || wrap.offsetWidth;
         const vw = window.innerWidth;
 
-        // Scale to fit (but don’t go above 1 or below 0.25)
-        let scale = vw / layoutWidth;
-        scale = Math.min(1, Math.max(0.25, scale));
+        // Only shrink if the layout is actually wider than the device
+        if (layoutWidth > vw + 1) {
+            let scale = vw / layoutWidth;
+            scale = Math.min(1, Math.max(0.25, scale));
 
-        // Use content width so Safari knows the page can be wider than the device
-        vp.setAttribute(
-            "content",
-            `width=${layoutWidth}, initial-scale=${scale}, minimum-scale=0.25, maximum-scale=5, user-scalable=yes, viewport-fit=cover`
-        );
+            vp.setAttribute(
+                "content",
+                `width=${layoutWidth}, initial-scale=${scale}, minimum-scale=0.25, maximum-scale=5, user-scalable=yes, viewport-fit=cover`
+            );
+        } else {
+            // Layout fits already — keep normal scale on tablets too
+            vp.setAttribute(
+                "content",
+                "width=device-width, initial-scale=1, user-scalable=yes, minimum-scale=0.25, maximum-scale=5, viewport-fit=cover"
+            );
+        }
     };
 
     updateViewportScale();
