@@ -594,3 +594,24 @@ html[data-theme="dark"] .lightbox {
         display: none;
     }
 }
+/* ===== Mobile: stack to 1 column ===== */
+@media (max-width: 767px) {
+    .wrap {
+        grid-template-columns: 1fr !important; /* from 3 cols → 1 */
+        max-width: 100%;
+        padding: 0 12px;
+        gap: 12px;
+    }
+
+    /* Optional: smaller avatars/cards so it feels right on small screens */
+    :root {
+        --avatar: 96px;
+        --gap: 12px;
+    }
+
+    /* If any tiles/cards have fixed widths, make them fluid */
+    .card, .tile, .panel, .col, .column {
+        width: 100% !important;
+        max-width: none !important;
+    }
+}
