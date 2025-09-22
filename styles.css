@@ -648,3 +648,8 @@ html[data-theme="dark"] .lightbox {
         overflow-x: hidden !important;
     }
 }
+.gallery .ph img {
+    object-fit: cover;
+    object-position: center 20%;
+}
+/* shows more faces */
