@@ -615,3 +615,30 @@ html[data-theme="dark"] .lightbox {
         max-width: none !important;
     }
 }
+/* ===== Phones: compact 2×2 grid for the four buttons ===== */
+@media (max-width: 767px) {
+    /* make that block a centered, compact grid */
+    .aims {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(120px, 1fr)); /* 2 columns on phones */
+        gap: 12px;
+        justify-items: center; /* center the items inside the grid cells */
+        align-items: start;
+    }
+
+        /* keep tiles small instead of full-width squares */
+        .aims .tile {
+            width: 160px; /* cap the tile width so they don’t become huge */
+            max-width: 44vw; /* still responsive on very small screens */
+            aspect-ratio: 1 / 1; /* keep square shape */
+        }
+
+        /* make labels tighter */
+        .aims .label {
+            font-size: 12px;
+            line-height: 1.2;
+            margin-top: 6px;
+            text-align: center;
+            opacity: .9;
+        }
+}
