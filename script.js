@@ -63,10 +63,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.key === "Escape") close();
   });
 });
-// --- iPad-only zoom-out & auto-fit (force phones to normal) ---
+// --- iPad-only zoom-out & safe auto-fit ---
 const vp = document.querySelector('meta[name="viewport"]');
 
-// Always define a clean default viewport for non-iPad
 const setDefaultViewport = () => {
     if (!vp) return;
     vp.setAttribute(
@@ -75,56 +74,65 @@ const setDefaultViewport = () => {
     );
 };
 
-// Heuristic: detect iPad (including iPadOS that pretends to be Mac)
+// Heuristics
 const ua = navigator.userAgent;
+const isWebView = /Telegram|Instagram|FBAN|FBAV|Line|MiuiBrowser/i.test(ua);
+
+// Apple touch (no deprecated props)
 const isAppleTouch =
     /iPad|iPhone|iPod/.test(ua) ||
     (navigator.userAgentData
         ? navigator.userAgentData.platform === "macOS" && navigator.maxTouchPoints > 1
         : ua.includes("Mac") && navigator.maxTouchPoints > 1);
 
-// Use CSS pixel width; treat >= 768 as tablet
+// Tablet threshold (portrait iPad = 768 CSS px)
 const isTabletSized = Math.min(window.innerWidth, window.innerHeight) >= 768;
 
-// Telegram/other webviews sometimes misreport; if it says Telegram, be strict
-const isTelegram = /Telegram/i.test(ua);
+// iPad only
+const isIPad = isAppleTouch && isTabletSized && !/iPhone/i.test(ua) && !isWebView;
 
-// Final iPad decision
-const isIPad = isAppleTouch && isTabletSized && !/iPhone/i.test(ua);
-
-// Always start from a safe default
+// Always start from clean default
 setDefaultViewport();
 
 function updateViewportForIPad() {
     if (!vp) return;
 
-    if (isIPad && !isTelegram) {
-        const wrap = document.querySelector(".wrap");
-        if (!wrap) return;
+    if (!isIPad) {
+        // phones / webviews / desktops: keep default
+        setDefaultViewport();
+        return;
+    }
 
-        const layoutWidth = wrap.scrollWidth || wrap.offsetWidth;
-        const vw = window.innerWidth;
+    const wrap = document.querySelector(".wrap");
+    if (!wrap) return;
 
-        // Only shrink when layout is wider than the viewport
-        if (layoutWidth > vw + 1) {
-            let scale = vw / layoutWidth;
-            scale = Math.min(1, Math.max(0.25, scale));
+    const layoutWidth = wrap.scrollWidth || wrap.offsetWidth;
+    const vw = window.innerWidth;
 
-            vp.setAttribute(
-                "content",
-                `width=${layoutWidth}, initial-scale=${scale}, minimum-scale=0.25, maximum-scale=5, user-scalable=yes, viewport-fit=cover`
-            );
-        } else {
-            setDefaultViewport();
-        }
+    // Only shrink when layout is wider than viewport; never zoom-in
+    if (layoutWidth > vw + 1) {
+        let scale = vw / layoutWidth;
+        // clamp: never above 1 (no zoom-in), allow down to 0.25
+        scale = Math.max(0.25, Math.min(1, scale));
+
+        // Set a narrow width only for iPad to allow out-zoom
+        vp.setAttribute(
+            "content",
+            `width=${layoutWidth}, initial-scale=${scale}, minimum-scale=0.25, maximum-scale=5, user-scalable=yes, viewport-fit=cover`
+        );
     } else {
-        // Phones or webviews → force normal scale
+        // Layout already fits — use default
         setDefaultViewport();
     }
 }
 
+// Run and keep it in sync
 updateViewportForIPad();
 window.addEventListener("resize", updateViewportForIPad, { passive: true });
 window.addEventListener("orientationchange", updateViewportForIPad);
-// iOS back/forward cache restore
-window.addEventListener("pageshow", updateViewportForIPad);
+// iOS bfcache restore
+window.addEventListener("pageshow", () => {
+    setDefaultViewport();
+    // tiny delay so layout metrics are correct before we recalc
+    setTimeout(updateViewportForIPad, 0);
+});
