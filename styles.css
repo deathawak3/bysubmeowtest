@@ -594,3 +594,33 @@ html[data-theme="dark"] .lightbox {
         display: none;
     }
 }
+/* === Mobile: force single-column layout === */
+@media (max-width: 768px) {
+    :root {
+        --avatar: 88px;
+        --ph-h: 340px; /* shorter gallery photos on phones */
+    }
+
+    html, body {
+        overflow-x: hidden !important; /* stop horizontal scrolling */
+    }
+
+    .wrap {
+        width: auto !important;
+        min-width: 0 !important;
+        grid-template-columns: 1fr !important; /* one column */
+        margin: 16px auto 0;
+        padding: 0 12px;
+    }
+
+    /* All grids collapse to a single column */
+    .grid-2,
+    .gallery-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Specs become stacked label/value */
+    .specs-card .specs {
+        grid-template-columns: 1fr;
+    }
+}
