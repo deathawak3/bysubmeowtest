@@ -683,3 +683,51 @@ html[data-theme="dark"] .lightbox {
         text-align: center;
     }
 }
+/* ===== Phones (<= 767px): tame huge media cards ===== */
+@media (max-width: 767px) {
+    /* 1) Глобально уменьшаем высоту медиа-плейсхолдеров */
+    :root {
+        --ph-h: 240px; /* было ~500+ на десктопе — телефонная версия компактная */
+    }
+    /* если у тебя есть класс-плейсхолдер для медиа */
+    .ph, .media, .poster {
+        height: var(--ph-h) !important;
+        max-height: var(--ph-h) !important;
+    }
+
+        /* 2) Картинки внутри карт: не выходят за рамки */
+        .tile img,
+        .card img,
+        .poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* красиво обрезаем, не растягиваем экран */
+            border-radius: inherit;
+            display: block;
+        }
+
+    /* 3) Спец-случай: «бутылка» (нужен contain, чтобы не обрезало) */
+    .tile--bottle img,
+    .bottle img,
+    .img--contain img {
+        object-fit: contain; /* иконки/рендеры без обрезки */
+        background: transparent;
+    }
+
+    /* 4) Спец-случай: Кинопоиск/видео — фиксируем 16:9, не выше 240px */
+    .tile--kino .media,
+    .kino .media,
+    .video .media {
+        aspect-ratio: 16 / 9;
+        height: auto !important;
+        max-height: var(--ph-h);
+        overflow: hidden;
+    }
+
+    .tile--kino iframe,
+    .kino iframe,
+    .video iframe {
+        width: 100%;
+        height: 100%;
+    }
+}
