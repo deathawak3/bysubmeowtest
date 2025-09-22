@@ -624,3 +624,27 @@ html[data-theme="dark"] .lightbox {
         grid-template-columns: 1fr;
     }
 }
+/* === Mobile fixes: uncrop images + remove extra space in About === */
+@media (max-width: 768px) {
+    /* 1) Gallery images were cropped because of a fixed height + object-fit: cover */
+    .gallery .ph {
+        height: auto; /* let each photo set its own height */
+    }
+
+        .gallery .ph img {
+            width: 100%;
+            height: auto; /* keep the natural aspect ratio */
+            object-fit: contain; /* show the whole image on small screens */
+            object-position: center;
+        }
+
+    /* 2) Extra empty space at the bottom of the “About me” card */
+    .about--tall {
+        min-height: 0; /* cancel the desktop min-height */
+    }
+
+    /* (Good to keep) prevent sideways scrolling on mobile */
+    html, body {
+        overflow-x: hidden !important;
+    }
+}
