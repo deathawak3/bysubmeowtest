@@ -13,7 +13,6 @@
     --avatar: 150px;
     --pig-w: 520px;
     --ph-h: 530px;
-    --site-w: 1600px; 
     --firstrow-shift: 96px;
 }
 html[data-theme="dark"] {
@@ -41,11 +40,12 @@ body {
     font: 16px/1.5 Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
 }
 .wrap {
-    width: calc(var(--c1)+var(--c23)*2+var(--gap)*2);
-    min-width: calc(var(--c1)+var(--c23)*2+var(--gap)*2);
-    margin: 28px auto 0;
-    padding: 0 16px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 30px var(--gap) 90px;
     display: grid;
+    grid-template-rows: auto;
     gap: var(--gap);
     align-items: start;
     grid-template-columns: var(--c1) var(--c23) var(--c23);
