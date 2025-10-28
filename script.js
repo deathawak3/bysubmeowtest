@@ -133,4 +133,30 @@ document.addEventListener('DOMContentLoaded', () => {
             splashScreen.style.display = 'none';
         }, 1000);
     }
+    const scrollBtn = document.getElementById('scroll-to-top');
+    const scrollThreshold = 400; // Расстояние (в пикселях), после которого кнопка появится
+
+    if (scrollBtn) {
+        const toggleScrollBtn = () => {
+            // Проверяем, прокручен ли экран больше чем на 400px
+            if (window.scrollY > scrollThreshold) {
+                scrollBtn.classList.add('is-visible');
+            } else {
+                scrollBtn.classList.remove('is-visible');
+            }
+        };
+
+        // 1. Добавляем обработчик скролла
+        window.addEventListener('scroll', toggleScrollBtn);
+        // Запускаем один раз при загрузке
+        toggleScrollBtn();
+
+        // 2. Добавляем обработчик клика для перемотки
+        scrollBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth' // Плавная прокрутка
+            });
+        });
+    }
 });

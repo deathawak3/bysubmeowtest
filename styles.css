@@ -6,14 +6,14 @@
     --stroke: rgba(20,22,30,.12);
     --inner: rgba(255,255,255,.6);
     --gap: 14px;
-    --c1: 390px; 
-    --c23: 520px; 
+    --c1: 390px;
+    --c23: 520px;
     --radius-card: 28px;
     --radius-tile: 18px;
     --avatar: 150px;
     --pig-w: 520px;
     --ph-h: 530px;
-    --site-w: calc(var(--c1)+var(--c23)*2+var(--gap)*2);
+    --site-w: calc(var(--c1) + var(--c23)*2 + var(--gap)*2 + var(--firstrow-shift));
     --firstrow-shift: 96px;
 }
 html[data-theme="dark"] {
@@ -35,31 +35,22 @@ html {
 }
 body {
     margin: 0;
-    overflow-x: hidden;
+    overflow-x: auto;
     background: radial-gradient(1200px 800px at 10% -10%,rgba(255,255,255,.12),transparent 60%) var(--bg);
     color: var(--text);
     font: 16px/1.5 Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
 }
 .wrap {
-    width: calc(var(--c1)+var(--c23)*2+var(--gap)*2);
-    min-width: calc(var(--c1)+var(--c23)*2+var(--gap)*2);
-    margin: 28px auto 0;
-    padding: 0 16px;
+    width: var(--site-w);
+    margin-left: auto; 
+    margin-right: auto; 
+    padding: var(--gap);
+    padding-left: calc(var(--gap) + var(--firstrow-shift));
     display: grid;
     gap: var(--gap);
     align-items: start;
     grid-template-columns: var(--c1) var(--c23) var(--c23);
     justify-content: center;
-}
-@supports (overflow:clip) {
-    .wrap {
-        overflow: clip
-    }
-}
-@supports not (overflow:clip) {
-    .wrap {
-        overflow: hidden
-    }
 }
 .col {
     display: grid;
@@ -626,3 +617,44 @@ html[data-theme="dark"] .lightbox {
     max-width: 1200px; 
     object-fit: contain; 
 }
+#scroll-to-top {
+    position: fixed;
+    bottom: 24px;
+    right: 24px; /* Разместим в правом нижнем углу, чтобы не конфликтовать с left-колонкой */
+    z-index: 100000; /* ГАРАНТИЯ: Выше, чем 99999 у прелоадера */
+    /* Стилизация */
+    width: 48px;
+    height: 48px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    /* Центрирование символа стрелки */
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--card);
+    color: var(--text);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    /* Скрытие по умолчанию */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+    #scroll-to-top:hover {
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+        transform: translateY(-2px);
+    }
+
+    /* Класс, который JS добавляет, когда кнопка должна быть видна */
+    #scroll-to-top.is-visible {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    #scroll-to-top svg {
+        display: block;
+        width: 24px;
+        height: 24px;
+    }
