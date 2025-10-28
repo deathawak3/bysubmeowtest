@@ -1,127 +1,156 @@
-document.addEventListener("DOMContentLoaded", () => {
-    // --- 1. ЛОГИКА КОПИРОВАНИЯ КОДА (CROSSHAIR) ---
-    document.addEventListener("click", async (e) => {
-        const btn = e.target.closest(".copy-btn");
-        if (!btn) return;
-        const code = btn.dataset.code || "";
-        try {
-            await navigator.clipboard.writeText(code);
-            btn.classList.add("copied");
-            setTimeout(() => btn.classList.remove("copied"), 1200);
-        } catch (err) {
-            console.error("Не удалось скопировать код:", err);
+document.addEventListener('DOMContentLoaded', () => {
+    // --- 1. ЛОГИКА ПЕРЕСТАНОВКИ ПЛЕЙЛИСТОВ НА МОБИЛЬНЫХ УСТРОЙСТВАХ ---
+    const pl2 = document.getElementById('pl2'); // Второй плейлист (из Col 3)
+    const pl1 = document.getElementById('pl1'); // Первый плейлист (из Col 2)
+    const col3 = document.querySelector('.wrap > .col:nth-child(3)'); // Родная колонка для pl2
+
+    // Медиа-запрос, соответствующий мобильному брейкпоинту в вашем CSS
+    const isMobileQuery = window.matchMedia('(max-width: 1100px)');
+
+    function handleMobileLayout(mediaQuery) {
+        // Проверяем, доступны ли плейлисты и активен ли мобильный брейкпоинт
+        if (pl2 && pl1 && col3 && mediaQuery.matches) {
+            // 1. Если мобильный: перемещаем pl2 после pl1
+            // (pl1 находится во второй колонке, pl2 теперь тоже перемещается туда)
+            pl1.after(pl2);
+
+        } else if (pl2 && col3 && !mediaQuery.matches) {
+            // 2. Если десктоп: возвращаем pl2 на его исходное место в Col 3
+            // Проверяем, находится ли pl2 сейчас не в Col 3 (т.е. был перемещен)
+            if (pl2.parentElement !== col3) {
+                // Возвращаем pl2 первым элементом в его родную третью колонку
+                col3.prepend(pl2);
+            }
+        }
+    }
+
+    // Запускаем при загрузке страницы
+    handleMobileLayout(isMobileQuery);
+
+    // Слушаем изменения разрешения (например, поворот экрана)
+    isMobileQuery.addListener(handleMobileLayout);
+
+
+    // --- 2. ФУНКЦИОНАЛ КОПИРОВАНИЯ ПРИЦЕЛОВ ---
+    const copyButtons = document.querySelectorAll('.aim .copy-btn');
+    copyButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const code = button.getAttribute('data-code');
+            navigator.clipboard.writeText(code).then(() => {
+                button.classList.add('copied');
+                const originalText = button.querySelector('span').textContent;
+                button.querySelector('span').textContent = 'скопировано!';
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.querySelector('span').textContent = originalText;
+                }, 1500);
+            }).catch(err => {
+                console.error('Ошибка копирования: ', err);
+            });
+        });
+    });
+
+    // --- 3. ФУНКЦИОНАЛ ПЕРЕКЛЮЧЕНИЯ ТЕМЫ ---
+    const themeToggle = document.getElementById('theme-toggle');
+    const html = document.documentElement;
+
+    const currentTheme = localStorage.getItem('theme');
+    if (currentTheme) {
+        html.setAttribute('data-theme', currentTheme);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        html.setAttribute('data-theme', 'dark');
+    }
+
+    themeToggle.addEventListener('click', () => {
+        const newTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        themeToggle.textContent = newTheme === 'dark' ? '💡' : '🌙';
+    });
+
+    themeToggle.textContent = html.getAttribute('data-theme') === 'dark' ? '💡' : '🌙';
+
+
+    // --- 4. ФУНКЦИОНАЛ ЛАЙТБОКСА И ГАЛЕРЕИ ---
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = lightbox ? lightbox.querySelector('.lightbox__img') : null;
+    const lightboxClose = lightbox ? lightbox.querySelector('.lightbox__close') : null;
+    const galleryLinks = document.querySelectorAll('.gallery .ph');
+
+    const closeLightbox = () => {
+        if (lightbox) {
+            lightbox.classList.remove('is-open');
+            lightbox.setAttribute('aria-hidden', 'true');
+            if (lightboxImg) lightboxImg.src = '';
+            document.body.style.overflow = '';
+        }
+    };
+
+    galleryLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (lightbox && lightboxImg) {
+                lightboxImg.src = link.href;
+                lightbox.classList.add('is-open');
+                lightbox.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+            }
+        });
+    });
+
+    if (lightboxClose) {
+        lightboxClose.addEventListener('click', closeLightbox);
+    }
+
+    if (lightbox) {
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox || e.target === lightboxImg) {
+                closeLightbox();
+            }
+        });
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeLightbox();
         }
     });
 
-    // --- 2. ЛОГИКА ПЕРЕКЛЮЧЕНИЯ ТЕМЫ ---
-    const root = document.documentElement;
-    const themeBtn = document.getElementById("theme-toggle");
-    if (themeBtn) {
-        const applyTheme = (t) => {
-            root.setAttribute("data-theme", t);
-            themeBtn.textContent = t === "dark" ? "☀️" : "🌙";
-            themeBtn.setAttribute("aria-label", t === "dark" ? "Светлая тема" : "Тёмная тема");
-        };
-        const saved = localStorage.getItem("theme");
-        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        applyTheme(saved ?? (prefersDark ? "dark" : "light"));
+    // --- 5. ФУНКЦИОНАЛ СПЛЭШ-СКРИНА ---
+    const splashScreen = document.getElementById('splash-screen');
+    const splashVideo = document.getElementById('splash-video');
 
-        themeBtn.addEventListener("click", () => {
-            const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
-            applyTheme(next);
-            localStorage.setItem("theme", next);
-        });
-    }
+    if (splashVideo) {
+        const isDark = html.getAttribute('data-theme') === 'dark';
+        const lightSrc = splashVideo.getAttribute('data-light-src');
 
-    // --- 3. ЛОГИКА LIGHTBOX (ОТКРЫТИЯ КАРТИНОК) ---
-    const lb = document.getElementById("lightbox");
-    if (lb) {
-        const lbImg = lb.querySelector(".lightbox__img");
-        const lbClose = lb.querySelector(".lightbox__close");
-
-        const open = (src, alt = "") => {
-            lbImg.src = src;
-            lbImg.alt = alt;
-            lb.classList.add("is-open");
-        };
-        const close = () => lb.classList.remove("is-open");
-
-        document.addEventListener("click", (e) => {
-            const link = e.target.closest(".gallery .ph");
-            if (!link) return;
-            e.preventDefault();
-            const img = link.querySelector("img");
-            open(link.href, img.alt);
-        });
-
-        lbClose.addEventListener("click", close);
-        lb.addEventListener("click", (e) => {
-            if (e.target === lb) close();
-        });
-        document.addEventListener("keyup", (e) => {
-            if (e.key === "Escape") close();
-        });
-    }
-
-    // --- 4. ЛОГИКА АНИМАЦИИ MP4 С ПОДДЕРЖКОЙ ТЕМЫ (ИСПРАВЛЕНО) ---
-    const splashScreen = document.getElementById("splash-screen");
-    const splashVideo = document.getElementById("splash-video");
-
-    if (splashScreen && splashVideo) {
-        // --- Выбор видео в зависимости от темы ---
-        const currentTheme = root.getAttribute("data-theme") || "dark";
-        const lightSrc = splashVideo.dataset.lightSrc;
-
-        // Если тема светлая, меняем источник
-        if (currentTheme === "light" && lightSrc) {
-            const oldSource = splashVideo.querySelector('source');
-            if (oldSource) oldSource.remove();
-
-            const newSource = document.createElement('source');
-            newSource.src = lightSrc;
-            newSource.type = "video/mp4";
-            splashVideo.appendChild(newSource);
-
-            splashVideo.load();
-        }
-        // ----------------------------------------
-
-        const hideSplashScreen = () => {
-            splashScreen.classList.add("is-done");
-        };
-
-        let videoAttempted = false;
-
-        const playVideoAndHide = () => {
-            if (videoAttempted) return;
-            videoAttempted = true;
-
-            const playPromise = splashVideo.play();
-
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    // УСПЕХ: Видео запустилось. Скрываем только после окончания.
-                    splashVideo.addEventListener("ended", hideSplashScreen);
-                }).catch(e => {
-                    // НЕУДАЧА: Автозапуск заблокирован. Немедленно скрываем.
-                    console.error("Autoplay failed:", e);
-                    hideSplashScreen();
-                });
+        if (!isDark && lightSrc) {
+            const currentSource = splashVideo.querySelector('source');
+            if (currentSource) {
+                currentSource.src = lightSrc;
+                splashVideo.load();
             }
         }
 
-        // 1. Запуск видео при готовности данных
-        splashVideo.onloadeddata = playVideoAndHide;
-        splashVideo.addEventListener("loadedmetadata", playVideoAndHide);
+        const hideSplash = () => {
+            if (splashScreen) {
+                splashScreen.classList.add('is-done');
+                setTimeout(() => {
+                    splashScreen.style.display = 'none';
+                }, 1000);
+            }
+        };
 
-        // 2. Страховка: Если видео не запустилось или не загрузилось в течение 5 секунд
+        splashVideo.addEventListener('ended', hideSplash);
+        splashVideo.play().catch(() => {
+            setTimeout(hideSplash, 2000);
+        });
+
+        setTimeout(hideSplash, 5000);
+    } else if (splashScreen) {
+        splashScreen.classList.add('is-done');
         setTimeout(() => {
-            if (!splashScreen.classList.contains("is-done")) {
-                hideSplashScreen();
-            }
-        }, 5000);
-
-        // 3. Дополнительная попытка запуска сразу
-        setTimeout(playVideoAndHide, 100);
+            splashScreen.style.display = 'none';
+        }, 1000);
     }
 });
