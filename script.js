@@ -58,11 +58,35 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.key === "Escape") close();
     });
 
-    // НОВЫЙ КОД: ФИНАЛЬНАЯ ЛОГИКА АНИМАЦИИ MP4
+    // НОВЫЙ КОД: ФИНАЛЬНАЯ ЛОГИКА АНИМАЦИИ MP4 С ПОДДЕРЖКОЙ ТЕМЫ
     const splashScreen = document.getElementById("splash-screen");
     const splashVideo = document.getElementById("splash-video");
+    const root = document.documentElement; // DOM-элемент <html>
 
     if (splashScreen && splashVideo) {
+        // --- 1. ЛОГИКА ВЫБОРА ВИДЕО ПО ТЕМЕ ---
+        // Получаем текущую тему, которая берется из data-theme="dark/light"
+        const currentTheme = root.getAttribute("data-theme") || "dark";
+        // Получаем путь для светлой темы из атрибута data-light-src
+        const lightSrc = splashVideo.dataset.lightSrc;
+
+        // Если тема светлая, и есть путь для светлого видео, меняем источник
+        if (currentTheme === "light" && lightSrc) {
+            // Удаляем существующий <source> (темный)
+            const oldSource = splashVideo.querySelector('source');
+            if (oldSource) oldSource.remove();
+
+            // Создаем новый <source> для светлого видео
+            const newSource = document.createElement('source');
+            newSource.src = lightSrc;
+            newSource.type = "video/mp4";
+            splashVideo.appendChild(newSource);
+
+            // Заставляем видеоэлемент перезагрузить источники
+            splashVideo.load();
+        }
+        // ----------------------------------------
+
         const hideSplashScreen = () => {
             splashScreen.classList.add("is-done");
         };
@@ -88,14 +112,13 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // 1. Запускаем видео, как только браузер загрузит достаточно данных (самый распространенный метод)
+        // 1. Запускаем видео, как только браузер загрузит достаточно данных 
         splashVideo.onloadeddata = playVideoAndHide;
 
         // 2. Дополнительный триггер на метаданные (помогает на iOS)
         splashVideo.addEventListener("loadedmetadata", playVideoAndHide);
 
-        // 3. Страховка: Если видео не запустилось или не загрузилось в течение 5 секунд, 
-        // немедленно скрываем экран.
+        // 3. Страховка: Если видео не запустилось или не загрузилось в течение 5 секунд...
         setTimeout(() => {
             if (!splashScreen.classList.contains("is-done")) {
                 hideSplashScreen();
