@@ -63,24 +63,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const splashVideo = document.getElementById("splash-video");
 
     if (splashScreen && splashVideo) {
-        // Функция для скрытия оверлея
         const hideSplashScreen = () => {
             splashScreen.classList.add("is-done");
         };
 
-        // Главная логика: запускаем видео и скрываем экран по окончании
+        // Флаг для отслеживания запуска видео
+        let videoAttempted = false;
+
         const playVideoAndHide = () => {
-            // Попытка запуска видео
+            if (videoAttempted) return;
+            videoAttempted = true;
+
             const playPromise = splashVideo.play();
 
             if (playPromise !== undefined) {
                 playPromise.then(() => {
-                    // Видео запустилось успешно
-                    // Добавляем обработчик на конец видео
+                    // УСПЕХ: Видео запустилось. Скрываем только после окончания.
                     splashVideo.addEventListener("ended", hideSplashScreen);
                 }).catch(e => {
-                    // Если автозапуск не удался (мобильный браузер заблокировал), 
-                    // немедленно скрываем экран, чтобы не блокировать контент.
+                    // НЕУДАЧА: Автозапуск заблокирован. Немедленно скрываем.
                     console.error("Autoplay failed:", e);
                     hideSplashScreen();
                 });
@@ -90,14 +91,23 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // Запускаем воспроизведение после того, как все медиа-данные загружены
+        // 1. Запускаем видео, как только браузер загрузит достаточно данных
         splashVideo.onloadeddata = playVideoAndHide;
 
-        // Страховка: Скрыть экран через 5 секунд, если что-то пошло не так (очень медленная сеть, ошибка)
+        // 2. Дополнительный триггер на метаданные (для iOS)
+        splashVideo.addEventListener("loadedmetadata", playVideoAndHide);
+
+        // 3. Страховка: Если видео не запустилось или не загрузилось в течение 5 секунд, 
+        // немедленно скрываем экран, чтобы показать контент.
         setTimeout(() => {
             if (!splashScreen.classList.contains("is-done")) {
                 hideSplashScreen();
             }
         }, 5000);
+
+        // 4. Дополнительная страховка (для очень быстрых случаев): 
+        // Если DOM готов, пытаемся запустить. Это помогает, если onloadeddata не сработал.
+        // Устанавливаем небольшую задержку для надежности.
+        setTimeout(playVideoAndHide, 100);
     }
 });
