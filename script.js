@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.key === "Escape") close();
     });
 
-    // НОВЫЙ КОД: Логика анимации MP4 при загрузке
+    // НОВЫЙ КОД: ФИНАЛЬНАЯ ЛОГИКА АНИМАЦИИ MP4
     const splashScreen = document.getElementById("splash-screen");
     const splashVideo = document.getElementById("splash-video");
 
@@ -85,29 +85,24 @@ document.addEventListener("DOMContentLoaded", () => {
                     console.error("Autoplay failed:", e);
                     hideSplashScreen();
                 });
-            } else {
-                // Fallback для старых браузеров
-                splashVideo.addEventListener("ended", hideSplashScreen);
             }
         }
 
-        // 1. Запускаем видео, как только браузер загрузит достаточно данных
+        // 1. Запускаем видео, как только браузер загрузит достаточно данных (самый распространенный метод)
         splashVideo.onloadeddata = playVideoAndHide;
 
-        // 2. Дополнительный триггер на метаданные (для iOS)
+        // 2. Дополнительный триггер на метаданные (помогает на iOS)
         splashVideo.addEventListener("loadedmetadata", playVideoAndHide);
 
         // 3. Страховка: Если видео не запустилось или не загрузилось в течение 5 секунд, 
-        // немедленно скрываем экран, чтобы показать контент.
+        // немедленно скрываем экран.
         setTimeout(() => {
             if (!splashScreen.classList.contains("is-done")) {
                 hideSplashScreen();
             }
         }, 5000);
 
-        // 4. Дополнительная страховка (для очень быстрых случаев): 
-        // Если DOM готов, пытаемся запустить. Это помогает, если onloadeddata не сработал.
-        // Устанавливаем небольшую задержку для надежности.
+        // 4. Дополнительная попытка запуска сразу после готовности DOM.
         setTimeout(playVideoAndHide, 100);
     }
 });
