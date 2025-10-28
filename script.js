@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Copy crosshair code
+    // --- 1. ЛОГИКА КОПИРОВАНИЯ КОДА (CROSSHAIR) ---
     document.addEventListener("click", async (e) => {
         const btn = e.target.closest(".copy-btn");
         if (!btn) return;
@@ -12,7 +12,8 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("Не удалось скопировать код:", err);
         }
     });
-    // Theme toggle
+
+    // --- 2. ЛОГИКА ПЕРЕКЛЮЧЕНИЯ ТЕМЫ ---
     const root = document.documentElement;
     const themeBtn = document.getElementById("theme-toggle");
     if (themeBtn) {
@@ -31,58 +32,56 @@ document.addEventListener("DOMContentLoaded", () => {
             localStorage.setItem("theme", next);
         });
     }
-    // Lightbox
+
+    // --- 3. ЛОГИКА LIGHTBOX (ОТКРЫТИЯ КАРТИНОК) ---
     const lb = document.getElementById("lightbox");
-    if (!lb) return;
-    const lbImg = lb.querySelector(".lightbox__img");
-    const lbClose = lb.querySelector(".lightbox__close");
+    if (lb) {
+        const lbImg = lb.querySelector(".lightbox__img");
+        const lbClose = lb.querySelector(".lightbox__close");
 
-    const open = (src, alt = "") => {
-        lbImg.src = src;
-        lbImg.alt = alt;
-        lb.classList.add("is-open");
-    };
-    const close = () => lb.classList.remove("is-open");
-    document.addEventListener("click", (e) => {
-        const link = e.target.closest(".gallery .ph");
-        if (!link) return;
-        e.preventDefault();
-        const img = link.querySelector("img");
-        open(link.href, img ? img.alt : "");
-    });
-    lbClose.addEventListener("click", close);
-    lb.addEventListener("click", (e) => {
-        if (e.target === lb) close();
-    });
-    document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") close();
-    });
+        const open = (src, alt = "") => {
+            lbImg.src = src;
+            lbImg.alt = alt;
+            lb.classList.add("is-open");
+        };
+        const close = () => lb.classList.remove("is-open");
 
-    // НОВЫЙ КОД: ФИНАЛЬНАЯ ЛОГИКА АНИМАЦИИ MP4 С ПОДДЕРЖКОЙ ТЕМЫ
+        document.addEventListener("click", (e) => {
+            const link = e.target.closest(".gallery .ph");
+            if (!link) return;
+            e.preventDefault();
+            const img = link.querySelector("img");
+            open(link.href, img.alt);
+        });
+
+        lbClose.addEventListener("click", close);
+        lb.addEventListener("click", (e) => {
+            if (e.target === lb) close();
+        });
+        document.addEventListener("keyup", (e) => {
+            if (e.key === "Escape") close();
+        });
+    }
+
+    // --- 4. ЛОГИКА АНИМАЦИИ MP4 С ПОДДЕРЖКОЙ ТЕМЫ (ИСПРАВЛЕНО) ---
     const splashScreen = document.getElementById("splash-screen");
     const splashVideo = document.getElementById("splash-video");
-    const root = document.documentElement; // DOM-элемент <html>
 
     if (splashScreen && splashVideo) {
-        // --- 1. ЛОГИКА ВЫБОРА ВИДЕО ПО ТЕМЕ ---
-        // Получаем текущую тему, которая берется из data-theme="dark/light"
+        // --- Выбор видео в зависимости от темы ---
         const currentTheme = root.getAttribute("data-theme") || "dark";
-        // Получаем путь для светлой темы из атрибута data-light-src
         const lightSrc = splashVideo.dataset.lightSrc;
 
-        // Если тема светлая, и есть путь для светлого видео, меняем источник
+        // Если тема светлая, меняем источник
         if (currentTheme === "light" && lightSrc) {
-            // Удаляем существующий <source> (темный)
             const oldSource = splashVideo.querySelector('source');
             if (oldSource) oldSource.remove();
 
-            // Создаем новый <source> для светлого видео
             const newSource = document.createElement('source');
             newSource.src = lightSrc;
             newSource.type = "video/mp4";
             splashVideo.appendChild(newSource);
 
-            // Заставляем видеоэлемент перезагрузить источники
             splashVideo.load();
         }
         // ----------------------------------------
@@ -91,7 +90,6 @@ document.addEventListener("DOMContentLoaded", () => {
             splashScreen.classList.add("is-done");
         };
 
-        // Флаг для отслеживания запуска видео
         let videoAttempted = false;
 
         const playVideoAndHide = () => {
@@ -112,20 +110,18 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // 1. Запускаем видео, как только браузер загрузит достаточно данных 
+        // 1. Запуск видео при готовности данных
         splashVideo.onloadeddata = playVideoAndHide;
-
-        // 2. Дополнительный триггер на метаданные (помогает на iOS)
         splashVideo.addEventListener("loadedmetadata", playVideoAndHide);
 
-        // 3. Страховка: Если видео не запустилось или не загрузилось в течение 5 секунд...
+        // 2. Страховка: Если видео не запустилось или не загрузилось в течение 5 секунд
         setTimeout(() => {
             if (!splashScreen.classList.contains("is-done")) {
                 hideSplashScreen();
             }
         }, 5000);
 
-        // 4. Дополнительная попытка запуска сразу после готовности DOM.
+        // 3. Дополнительная попытка запуска сразу
         setTimeout(playVideoAndHide, 100);
     }
 });
